@@ -4,14 +4,15 @@ import { FILTERS } from "./filters";
 import Sidebar from "./components/Sidebar";
 import TodoForm from "./components/TodoForm";
 import TodoItem from "./components/TodoItem";
+import SearchBar from "./components/SearchBar";
 
 function App() {
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Runs an API action and shows its error in the banner if it fails
   const run = async (action) => {
     try {
       setError("");
@@ -55,7 +56,11 @@ function App() {
       setTodos((prev) => prev.filter((t) => !t.completed));
     });
 
-  const filteredTodos = todos.filter(FILTERS[filter].test);
+  const filteredTodos = todos
+    .filter(FILTERS[filter].test)
+    .filter((todo) =>
+      todo.title.toLowerCase().includes(search.toLowerCase())
+    );
 
   return (
     <div className="layout">
@@ -75,6 +80,7 @@ function App() {
         </header>
 
         <TodoForm onAdd={handleAdd} />
+        <SearchBar value={search} onChange={setSearch} />
 
         {error && (
           <div className="error" role="alert">
@@ -91,7 +97,9 @@ function App() {
           <div className="empty">
             <img src="/logo.png" alt="" />
             <p>
-              {filter === "done"
+              {search
+                ? `No tasks match "${search}"`
+                : filter === "done"
                 ? "Nothing completed yet"
                 : "You're all caught up. Add a task above."}
             </p>
